@@ -1,0 +1,151 @@
+---
+title: "Stacked bar plot DEGs per chromosome"
+author: "Pablo Domizi"
+date: "2024-12-21"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+chr1p <- read_excel("Volcano plots/SAMseq_chr1p_for_volcano_21Dec2024.xlsx")
+
+chr1p <- chr1p |>
+  filter(FDR < 0.1) |>
+  mutate(Chromosome = factor(Chromosome, labels =c("In", "Out"))) |>
+  mutate(DEG = paste0(Chromosome, "_", TSG)) |>
+  mutate(DEG = factor(DEG, 
+                      levels = c("In_YES", "In_No", "Out_No"))) |>
+  group_by(DEG) |>
+  tally()
+
+colnames(chr1p)[2] <- "chr1p"
+
+chr1p
+```
+
+```{r}
+chr11 <- read_excel("Volcano plots/SAMseq_chr11_for_volcano_21Dec2024.xlsx")
+
+chr11 <- chr11 |>
+  filter(FDR < 0.1) |>
+  mutate(Chromosome = factor(Chromosome, labels =c("In", "Out"))) |>
+  mutate(DEG = paste0(Chromosome, "_", TSG)) |>
+  mutate(DEG = factor(DEG, 
+                      levels = c("In_YES", "In_No", "Out_No"))) |>
+  group_by(DEG) |>
+  tally()
+
+colnames(chr11)[2] <- "chr11"
+
+chr11
+```
+
+```{r}
+chr13 <- read_excel("Volcano plots/SAMseq_chr13_for_volcano_21Dec2024.xlsx")
+
+chr13 <- chr13 |>
+  filter(FDR < 0.1) |>
+  mutate(Chromosome = factor(Chromosome, labels =c("In", "Out"))) |>
+  mutate(DEG = paste0(Chromosome, "_", TSG)) |>
+  mutate(DEG = factor(DEG, 
+                      levels = c("In_YES", "In_No", "Out_No"))) |>
+  group_by(DEG) |>
+  tally()
+
+colnames(chr13)[2] <- "chr13"
+
+chr13
+```
+
+```{r}
+chr14 <- read_excel("Volcano plots/SAMseq_chr14_for_volcano_21Dec2024.xlsx")
+
+chr14 <- chr14 |>
+  filter(FDR < 0.1) |>
+  mutate(Chromosome = factor(Chromosome, labels =c("In", "Out"))) |>
+  mutate(DEG = paste0(Chromosome, "_", TSG)) |>
+  mutate(DEG = factor(DEG, 
+                      levels = c("In_YES", "In_No", "Out_No"))) |>
+  group_by(DEG) |>
+  tally()
+
+colnames(chr14)[2] <- "chr14"
+
+chr14
+```
+
+```{r}
+chr15 <- read_excel("Volcano plots/SAMseq_chr15_for_volcano_21Dec2024.xlsx")
+
+chr15 <- chr15 |>
+  filter(FDR < 0.1) |>
+  mutate(Chromosome = factor(Chromosome, labels =c("In", "Out"))) |>
+  mutate(DEG = paste0(Chromosome, "_", TSG)) |>
+  mutate(DEG = factor(DEG, 
+                      levels = c("In_YES", "In_No", "Out_No"))) |>
+  group_by(DEG) |>
+  tally()
+
+colnames(chr15)[2] <- "chr15"
+
+chr15
+```
+
+```{r}
+chr22 <- read_excel("Volcano plots/SAMseq_chr22_for_volcano_21Dec2024.xlsx")
+
+chr22 <- chr22 |>
+  filter(FDR < 0.1) |>
+  mutate(Chromosome = factor(Chromosome, labels =c("In", "Out"))) |>
+  mutate(DEG = paste0(Chromosome, "_", TSG)) |>
+  mutate(DEG = factor(DEG, 
+                      levels = c("In_YES", "In_No", "Out_No"))) |>
+  group_by(DEG) |>
+  tally()
+
+colnames(chr22)[2] <- "chr22"
+
+chr22
+```
+
+```{r}
+ggdf <- tibble(DEG = c("In_YES", "In_No", "Out_No")) |>
+  mutate(DEG = factor(DEG, levels = c("In_YES", "In_No", "Out_No")))
+
+ggdf <- left_join(ggdf, chr1p)
+ggdf <- left_join(ggdf, chr11)
+ggdf <- left_join(ggdf, chr13)
+ggdf <- left_join(ggdf, chr14)
+ggdf <- left_join(ggdf, chr15)
+ggdf <- left_join(ggdf, chr22)
+
+ggdf <- ggdf |>
+  mutate_if(is.integer, ~ replace_na(., 0))
+
+write_delim(ggdf, "Numbers_DEG_per_chr_delected.txt",
+            delim = "\t")
+
+ggdf <- ggdf |>
+  pivot_longer(starts_with("chr"), names_to = "Chr", values_to = "n") |>
+  mutate(Chr = factor(Chr, levels = c("chr1p", "chr11", "chr13", 
+                                      "chr14", "chr15", "chr22"))) |>
+  arrange(Chr) 
+
+ggdf
+```
+
+
+```{r}
+ggdf |>
+ggplot(aes(x = Chr, y = n, fill = DEG)) +
+  geom_bar(position="fill", stat="identity") +
+  theme_classic() +
+  ylab("Frequency DEG") +
+  theme(axis.title.x = element_blank()) +
+  scale_fill_manual(values = c("#00468b", "#add8e6", "#d3d3d3"))
+ggsave("Barplots_DETSG_In_chrm_deletected.pdf")
+```

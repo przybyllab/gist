@@ -1,0 +1,37 @@
+---
+title: "Stacked bar plot DE miRNAs per chromosome"
+author: "Pablo Domizi"
+date: "2024-12-21"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+data <- read_excel("miRNA DEA/miRNA_TSGs_summary_25Dec2024.xlsx", sheet = 2)
+
+data
+```
+
+```{r}
+ggdf <- data |>
+  pivot_longer(where(is.double), names_to = "Category", values_to = "n") |>
+  mutate(Chromosome = factor(Chromosome),
+         Category = factor(Category, levels = c("TSG on chr", "On chr", "Others"))) |>
+  mutate(Chromosome = relevel(Chromosome, ref = "chr1p"))
+```
+
+
+```{r}
+ggdf |>
+ggplot(aes(x = Chromosome, y = n, fill = Category)) +
+  geom_bar(position="fill", stat="identity") +
+  theme_classic() +
+  ylab("Frequency DEG") +
+  theme(axis.title.x = element_blank()) +
+  scale_fill_manual(values = c("#00468b", "#add8e6", "#d3d3d3"))
+ggsave("miRNA DEA/Barplots_DE_miRNA_on_deletected_chr.pdf")
+```

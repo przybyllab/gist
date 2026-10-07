@@ -1,5 +1,5 @@
 ---
-title: "Volcano plots"
+title: "Dotplot Differentially methylated CpGs vs Differentially expressed genes"
 author: "Pablo Domizi"
 date: "2024-12-21"
 output: html_document

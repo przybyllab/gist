@@ -1,0 +1,229 @@
+---
+title: "Correlation plots"
+author: "Pablo Domizi"
+date: "2024-12-28"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+color.size <- c("#F781BF", "#DE1E2D", "#984EA3")
+names(color.size) <- c("Mini", "Small", "Large")
+```
+
+
+```{r}
+data <- read_excel("Beta_values_VSD_Correlation_for_graphpad_26Dec2024_3genes_for_Pablo.xlsx", 
+                   sheet = 1)
+
+data$size_group <- factor(data$size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+range(data$ADCY5)
+ymax <- ceiling(max(data$ADCY5))
+ymin <- floor(min(data$ADCY5))
+
+data |>
+  ggplot(aes(x = ADCY5_Methylation, y = ADCY5)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = size_group), size = 3, shape = 21) +
+  theme_classic() +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size) +
+  scale_x_continuous(name = "ADCYD5 gene methylation",
+                     breaks = (c(0, 0.2, 0.4, 0.6, 0.8, 1)), 
+                     limits = c(0, 1)) +
+  scale_y_continuous(name = "ADCY5 gene expression",
+                     limits = c(ymin, 14),
+                     breaks = seq(ymin, 14, by = 2))
+ggsave("ADCYD5_VST_vs_methylation_correlation.pdf")
+```
+
+```{r}
+data <- read_excel("Beta_values_VSD_Correlation_for_graphpad_26Dec2024_3genes_for_Pablo.xlsx", 
+                   sheet = 2)
+
+data$size_group <- factor(data$size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+range(data$HOXB3)
+ymax <- ceiling(max(data$HOXB3))
+ymin <- floor(min(data$HOXB3))
+
+data |>
+  ggplot(aes(x = HOXB3_methylation, y = HOXB3)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = size_group), size = 3, shape = 21) +
+  theme_classic() +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size) +
+  scale_x_continuous(name = "HOXB3 gene methylation",
+                     breaks = (c(0, 0.2, 0.4, 0.6, 0.8, 1)), 
+                     limits = c(0, 1)) +
+  scale_y_continuous(name = "HOXB3 gene expression",
+                     limits = c(ymin, ymax),
+                     breaks = seq(ymin, ymax, by = 1))
+ggsave("HOXB3_VST_vs_methylation_correlation.pdf")
+```
+
+```{r}
+data <- read_excel("Beta_values_VSD_Correlation_for_graphpad_26Dec2024_3genes_for_Pablo.xlsx", 
+                   sheet = 3)
+
+data$size_group <- factor(data$size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+range(data$ITPKB)
+ymax <- ceiling(max(data$ITPKB))
+ymin <- floor(min(data$ITPKB))
+
+data |>
+  ggplot(aes(x = ITPKB_methylation, y = ITPKB)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = size_group), size = 3, shape = 21) +
+  theme_classic() +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size) +
+  scale_x_continuous(name = "ITPKB gene methylation",
+                     breaks = (c(0, 0.2, 0.4, 0.6, 0.8, 1)), 
+                     limits = c(0, 1)) +
+  scale_y_continuous(name = "ITPKB gene expression",
+                     limits = c(ymin, ymax),
+                     breaks = seq(ymin, ymax, by = 1))
+ggsave("ITPKB_VST_vs_methylation_correlation.pdf")
+```
+
+```{r}
+data <- read_excel("Correlation_GI_methylation_28Dec2024.xlsx", 
+                   sheet = 1)
+
+data$Size_group <- factor(data$Size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+data |>
+  ggplot(aes(x = GI, y = median_beta_values)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = Size_group), size = 3, shape = 21) +
+  theme_classic() +
+  xlim(0, 50) +
+  ylim(0,1) +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size)
+ggsave("Median_beta_balues_vs_GI_correlation.pdf")
+```
+
+```{r}
+data <- read_excel("miRNA_RNA_correlation_plot_28Dec2024.xlsx", 
+                   sheet = 1)
+
+data$size_group <- factor(data$size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+range(data$KDM6B)
+ymax <- ceiling(max(data$KDM6B))
+ymin <- floor(min(data$KDM6B))
+
+range(data$`log2 TPM let-7a-5p`)
+xmax <- ceiling(max(data$`log2 TPM let-7a-5p`))
+xmin <- floor(min(data$`log2 TPM let-7a-5p`))
+
+data |>
+  ggplot(aes(x = `log2 TPM let-7a-5p`, y = KDM6B)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = size_group), size = 3, shape = 21) +
+  theme_classic() +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size) +
+  scale_x_continuous(limits = c(xmin, xmax),
+                     breaks = seq(xmin, xmax, by = 1)) +
+  scale_y_continuous(name = "KDM6B gene expression",
+                     limits = c(ymin, ymax),
+                     breaks = seq(ymin, ymax, by = 1))
+ggsave("KDM6B_VST_vs_let-7a-5p_miRNA_correlation.pdf")
+```
+
+```{r}
+data <- read_excel("miRNA_RNA_correlation_plot_28Dec2024.xlsx", 
+                   sheet = 2)
+
+data$size_group <- factor(data$size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+range(data$SLC35C1)
+ymax <- ceiling(max(data$SLC35C1))
+ymin <- floor(min(data$SLC35C1))
+
+range(data$`log2 TPM let-7a-5p`)
+xmax <- ceiling(max(data$`log2 TPM let-7a-5p`))
+xmin <- floor(min(data$`log2 TPM let-7a-5p`))
+
+data |>
+  ggplot(aes(x = `log2 TPM let-7a-5p`, y = SLC35C1)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = size_group), size = 3, shape = 21) +
+  theme_classic() +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size) +
+  scale_x_continuous(limits = c(xmin, xmax),
+                     breaks = seq(xmin, xmax, by = 1)) +
+  scale_y_continuous(name = "SLC35C1 gene expression",
+                     limits = c(ymin, ymax),
+                     breaks = seq(ymin, ymax, by = 1))
+ggsave("SLC35C1_VST_vs_let-7a-5p_miRNA_correlation.pdf")
+```
+
+```{r}
+data <- read_excel("MEG3_miR-494_for_Pablo_2May2025.xlsx")
+
+data$size_group <- factor(data$size_group, 
+                          levels = c("Mini", "Small", "Large"))
+
+range(data$MEG3)
+ymax <- ceiling(max(data$MEG3))
+ymin <- floor(min(data$MEG3))
+
+range(data$`hsa-miR-494-3p`)
+xmax <- ceiling(max(data$`hsa-miR-494-3p`))
+xmin <- floor(min(data$`hsa-miR-494-3p`))
+
+data |>
+  ggplot(aes(x = `hsa-miR-494-3p`, y = MEG3)) +
+  geom_smooth(method = "lm", se = T,
+              color = "black",
+              linetype = 2,
+              fill = "#D4D4D4") +
+  geom_point(aes(fill = size_group, shape = chr14_loss), size = 3) +
+  theme_classic() +
+  guides(fill = guide_legend("Size", override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.size) +
+  scale_x_continuous(limits = c(xmin, xmax),
+                     breaks = seq(xmin, xmax, by = 1)) +
+  scale_y_continuous(name = "MEG3 gene expression",
+                     limits = c(ymin, ymax),
+                     breaks = seq(ymin, ymax, by = 1)) +
+  scale_shape_manual(values = c(21, 24))
+ggsave("MEG3_VST_vs_hsa-miR-494-3p_correlation.pdf")
+```
+

@@ -1,0 +1,84 @@
+---
+title: "miRNA - mRNA barplots"
+author: "Pablo Domizi"
+date: "2025-05-04"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+data <- read_excel("Table_Sxyz_miRNA-RNA_correlation_19April2025.xlsx")
+```
+
+```{r}
+mRNA.df <- data |>
+  mutate(Correlation = sign(Correlation)) |>
+  mutate(Correlation = factor(Correlation, labels = c("Negative", "Positive"))) |>
+  group_by(mRNA, Correlation) |>
+  tally()
+
+df <- data |>
+  group_by(mRNA) |>
+  tally() |>
+  arrange(desc(n))
+
+col.order <- df$mRNA
+max.n <- max(df$n)
+
+mRNA.df |>
+  mutate(mRNA = factor(mRNA, levels = col.order)) |>
+  ggplot(aes(x = mRNA, y = n)) +
+  geom_col(aes(fill = Correlation),
+           color = "black") +
+  # geom_text(data = df, aes(label = n),
+  #           position = position_stack(vjust = 0.5),
+  #           color = "white",
+  #           size = 2) +
+  theme_classic() +
+  ylab("Number of miRNA") +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(hjust = 1, angle = 60)) +
+  scale_y_continuous(breaks = seq(0, max.n, 1)) +
+  scale_fill_manual(values = c("#6a3d9a", "#b87798"))
+ggsave("Barplot_numbers_miRNA_per_gene.pdf",
+       width = 14)
+```
+
+```{r}
+miRNA.df <- data |>
+  mutate(Correlation = sign(Correlation)) |>
+  mutate(Correlation = factor(Correlation, labels = c("Negative", "Positive"))) |>
+  group_by(miRNA, Correlation) |>
+  tally()
+
+df <- data |>
+  group_by(miRNA) |>
+  tally() |>
+  arrange(desc(n))
+
+col.order <- df$miRNA
+max.n <- max(df$n)
+
+miRNA.df |>
+  mutate(miRNA = factor(miRNA, levels = col.order)) |>
+  ggplot(aes(x = miRNA, y = n)) +
+  geom_col(aes(fill = Correlation),
+           color = "black") +
+  # geom_text(data = df, aes(label = n),
+  #           position = position_stack(vjust = 0.5),
+  #           color = "white",
+  #           size = 2) +
+  theme_classic() +
+  ylab("Number of Genes") +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(hjust = 1, angle = 60)) +
+  scale_y_continuous(breaks = seq(0, max.n, 1)) +
+  scale_fill_manual(values = c("#6a3d9a", "#b87798"))
+ggsave("Barplot_numbers_genes_per_miRNA.pdf",
+       width = 14)
+```
+

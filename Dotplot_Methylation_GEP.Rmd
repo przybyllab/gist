@@ -1,0 +1,112 @@
+---
+title: "Volcano plots"
+author: "Pablo Domizi"
+date: "2024-12-21"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+data <- read_excel("Dotplot_Methylation_GEP/Methylation_GE_dotplot_26Dec2024.xlsx")
+
+data
+```
+
+```{r}
+data$Category  <-  0
+
+idx <- data$Methylation_logFC < -1 & data$GEP_FC_mini > 1 
+data$Category[idx] <- 1
+
+idx <- data$Methylation_logFC > 1 & data$GEP_FC_mini < -1 
+data$Category[idx] <- 2
+
+data$Category <- factor(data$Category)
+
+table(data$Category)
+
+color.category <- c("#d3d3d3", "#0096FF", "#008F00")
+names(color.category) <- levels(data$Category)
+
+alpha.category <- c(0.5, 0.75, 0.75)
+names(alpha.category) <- levels(data$Category)
+```
+
+
+```{r}
+data |>
+  ggplot(aes(x  = Methylation_logFC, y = GEP_FC_mini, fill = Category, alpha = Category)) +
+  geom_point(size = 3, shape = 21) +
+  theme_classic() +
+  geom_vline(xintercept = 0, linetype = 2, color = "#dedede") +
+  geom_vline(xintercept = c(-1, 1), linetype = 2, color = "#00468b") +
+  geom_hline(yintercept = 0, linetype = 2, color = "#dedede") +
+  geom_hline(yintercept = c(-1, 1), linetype = 2, color = "#00468b") +
+  ylab("GEP (FC)") +
+  xlab("Methylation (Log2FC)") +
+  guides(fill = guide_legend(override.aes = list(shape = 21))) +
+  scale_fill_manual(values = color.category) +
+  scale_alpha_manual(values = alpha.category)
+ggsave("Dotplot_Methylation_GEP/Dotplot_Methylation_vs_GEP.pdf")
+```
+
+
+
+```{r}
+summary(data$logFC)
+quantile(data$logFC)
+
+summary(data$adj.P.Val)
+quantile(data$adj.P.Val)
+
+table(data$adj.P.Val < 0.05)
+```
+
+
+```{r}
+data$Significance <- with(data, ifelse(
+  adj.P.Val < 0.05, "Significant", "Not Significant"
+))
+
+data$Significance[data$Significance == "Significant" & data$gene == "MEG3"] <- "MEG3"
+
+data <- data |>
+  mutate(Significance = factor(Significance, 
+                               levels = c("MEG3", "Significant", "Not Significant")))
+
+table(data$Significance)
+```
+
+```{r}
+data |>
+ggplot(aes(x = logFC, y = -log10(adj.P.Val), 
+           fill = Significance, 
+           shape = Significance,
+           alpha = Significance)) +
+  geom_point(size = 3) +
+  theme_classic() +
+  scale_fill_manual(values = c("MEG3" = "#00468b", 
+                                "Significant" = "#add8e6", 
+                                "Not Significant" = "#d3d3d3")) +
+  scale_alpha_manual(values = c("MEG3" = 1,
+                                "Significant" = 1,
+                                "Not Significant" = 0.5)) +
+  scale_shape_manual(values = c("MEG3" = 21, 
+                                "Significant" = 21,
+                                "Not Significant" = 21)) +
+  labs(
+    x = "Log2(Fold Change)",
+    y = "-Log10(FDRvalue)",
+    color = "Significance"
+  ) +
+  geom_vline(xintercept = c(-0.5, 0.5), linetype = "dashed", color = "blue") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue")
+ggsave("Volcano plots/Volcano_plot_DMP_chr14loss_TSS(II).pdf",
+       width = 5)
+```
+
+
